@@ -1,6 +1,7 @@
 const express = require('express')
 const morgan = require('morgan')
 const createError = require('http-errors')
+const initMongodb = require('../src/helpers/init_mongodb')
 require('dotenv').config()
 
 // Create App 
@@ -21,6 +22,8 @@ app.use((error, req, res, next) => {
         }
     })
 })
+
+initMongodb()
 
 
 // Create Server
