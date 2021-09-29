@@ -6,6 +6,7 @@ require('dotenv').config()
 // Create App 
 const app = express()
 
+app.use(morgan('dev'))
 
 app.use(async (req, res, next) => {
     next(createError.NotFound("Not found"))
