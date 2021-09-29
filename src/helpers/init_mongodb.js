@@ -14,4 +14,4 @@ const initMongodb = async () => {
 }
 
 
-module.exports = initMongodb
+module.exports = initMongodb()
