@@ -1,5 +1,5 @@
 const UserModel = require('../model/User.model')
-const authSchema = require('../helpers/validation_schema')
+const ValidateSchema = require('../helpers/validation_schema')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -13,14 +13,19 @@ const checkUserExists = async (email) => {
     return result
 }
 
+const fetchUserInDb = async (email) => {
+    const findUser = await UserModel.findOne({email})
+    return findUser
+}
+
 exports.register = async (req, res, next) => {
     
     try {
 
         // Validate data request
-        const dataRequest = await authSchema.validateAsync(req.body)
+        const dataRequest = await ValidateSchema.authRegister.validateAsync(req.body)
         
-        // Check if the user exists in the database
+        // Check if the email exists in the database
         const result = await checkUserExists(dataRequest.email)
         if(!result) {
 
@@ -58,6 +63,52 @@ exports.register = async (req, res, next) => {
         if(error.isJoi === true) {
             error.status = 422
         } 
+        next(error)
+    }
+
+}
+
+exports.login = async (req, res, next) => {
+    
+    try {
+
+        // Validate data request
+        const resultRequest = await ValidateSchema.authLogin.validateAsync(req.body)
+
+        // Check if the email exists in the database
+        const result = await checkUserExists(resultRequest.email)
+        if(result) {
+
+            // Get user from database
+            const currentUser = await fetchUserInDb(resultRequest.email)
+
+            // Login
+            const match = await bcrypt.compare(resultRequest.password, currentUser.password)
+            if(match) {
+
+                const createJWT = await jwt.sign({
+                    username: currentUser.username,
+                    email: currentUser.email,
+                    password: currentUser.password
+                }, "USER")
+
+                res.json({
+                    message: "user logged it",
+                    token: createJWT
+                })
+
+            } else {
+                res.json({
+                    message: "The password is incorrect"
+                })
+            }
+
+        } else {
+            res.json("user is not exists")
+        }
+
+
+    } catch(error) {
         next(error)
     }
 
