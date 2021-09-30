@@ -18,6 +18,16 @@ const fetchUserInDb = async (email) => {
     return findUser
 }
 
+const singAccessToken = async (userId) => {
+    const payload = {
+        userId
+    }
+    const secret = "some super secret"
+    const options = {}
+    const token = await jwt.sign(payload, secret, options)
+    return token
+}
+
 exports.register = async (req, res, next) => {
     
     try {
@@ -82,9 +92,9 @@ exports.login = async (req, res, next) => {
             // Get user from database
             const currentUser = await fetchUserInDb(resultRequest.email)
 
-            // Login
             const match = await bcrypt.compare(resultRequest.password, currentUser.password)
             if(match) {
+                // Login
 
                 const createJWT = await jwt.sign({
                     username: currentUser.username,
@@ -104,11 +114,16 @@ exports.login = async (req, res, next) => {
             }
 
         } else {
-            res.json("user is not exists")
+            res.json({
+                message: "User is not exists"
+            })
         }
 
 
     } catch(error) {
+        if(error.isJoi === true) {
+            error.status = 422
+        } 
         next(error)
     }
 
