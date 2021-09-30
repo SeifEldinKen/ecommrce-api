@@ -5,6 +5,7 @@ const createError = require('http-errors')
 require('../src/helpers/init_mongodb')
 require('dotenv').config()
 const AuthRouter = require('./router/Auth.router')
+const PostRouter = require('./router/Post.router')
 
 
 // Create App 
@@ -15,6 +16,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.use('/api', AuthRouter)
+app.use('/api', PostRouter)
 
 app.use(async (req, res, next) => {
     next(createError.NotFound("Not found"))

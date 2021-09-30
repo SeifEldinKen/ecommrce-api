@@ -22,7 +22,13 @@ const authLogin = Joi.object({
     password: Joi.string().min(6).max(32).required()
 })
 
+const post = Joi.object({
+    title: Joi.string().required(),
+    description: Joi.string().required()
+})
+
 module.exports = {
     authRegister,
-    authLogin
+    authLogin,
+    post
 }
