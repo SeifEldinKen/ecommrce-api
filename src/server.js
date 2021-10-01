@@ -2,7 +2,7 @@ const express = require('express')
 const morgan = require('morgan')
 const createError = require('http-errors')
 const dotenv = require('dotenv')
-const verify = require('./router/verifyToken')
+const verify = require('./helpers/verifyToken')
 dotenv.config()
 
 // Init Database 
