@@ -1,36 +1,28 @@
 const PostModel = require('../model/Post.model')
-const ValidateSchema = require('../helpers/validation_schema')
-const { post } = require('../router/Post.router')
-const { json } = require('express')
+const {createPostValidation} = require('../helpers/validation_schema')
 
 
 exports.createPost = async (req, res, next) => {
     
+    // Validate data request
+    const {error} = createPostValidation(req.body)
+    if(error) {
+        return res.status(422).json({
+            message: error.details[0].message
+        })
+    }
+
+    // Create a new post
+    const newPost = new PostModel({
+        title: req.body.title,
+        description: req.body.description
+    })
+
     try {
-
-        // Validate data request
-        const resultRequest = await ValidateSchema.post.validateAsync(req.body)
-
-        // New post
-        const newPost = new PostModel({
-            title: resultRequest.title,
-            description: resultRequest.description
-        })
-
+        
         // Save post in database
-        await newPost.save((error, result) => {
-            if(error) {
-                res.status(500).send({
-                    error
-                })
-            } else {
-                res.status(200).send({
-                    code: 200,
-                    message: "Post Added Successfully",
-                    addUser: result
-                })
-            }
-        })
+        const savedPost = await newPost.save()
+        res.json(savedPost)
 
     } catch(error) {
         if(error.isJoi === true) {
